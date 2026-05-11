@@ -178,8 +178,7 @@ git commit -m "feat(web): добавлен компонент статистик
 # 3. Пушить в remote
 git push -u origin feature/dashboard-home
 
-# 4. Создать Pull Request через GitHub
-gh pr create --title "Dashboard home screen" --body "..."
+# 4. Создать Pull Request (см. секцию ниже)
 
 # 5. После мержа удалить локальную ветку
 git checkout main
@@ -192,3 +191,68 @@ git branch -d feature/dashboard-home
 - Один PR = одна фича/фикс (атомарность)
 - Перед мержем делать `git pull origin main` и разрешать конфликты
 - После мержа удалять feature ветку
+
+## Creating Pull Requests
+
+Перед созданием PR изучи изменения с помощью `git diff main...HEAD`, чтобы написать информативное описание.
+
+**Title:**
+- Используй Conventional Commits формат: `<type>(<scope>): <description>`
+- Пример: `feat(web): реализован дашборд с транзакциями и категориями`
+
+**Body структура:**
+```markdown
+## Summary
+Краткое описание реализованного функционала (2-3 предложения)
+
+### Новые страницы (если есть)
+- **`/path`** — описание страницы
+
+### Используемые endpoints (если есть)
+- `GET /endpoint` — описание
+- `POST /endpoint` — описание
+
+### Реализованный функционал
+**Категория 1:**
+- Пункт 1
+- Пункт 2
+
+**Категория 2:**
+- Пункт 1
+
+### Технические детали
+- Архитектурные решения
+- Использованные библиотеки/паттерны
+- Особенности реализации
+
+### Обновления документации (если есть)
+- Что изменилось в документации
+
+## Test plan
+- [ ] Тестовый сценарий 1
+- [ ] Тестовый сценарий 2
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+**Команда для создания PR:**
+```bash
+# Предварительно изучи изменения
+git diff main...HEAD
+
+# Создай PR с информативным описанием
+gh pr create --title "feat(web): описание изменений" --body "$(cat <<'EOF'
+## Summary
+Краткое описание...
+
+## Test plan
+- [ ] Тест 1
+- [ ] Тест 2
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+**Примеры хороших PR:**
+- [#1 - feat(web): реализован дашборд с транзакциями и категориями](https://github.com/flower1power/expence-tracker/pull/1)
