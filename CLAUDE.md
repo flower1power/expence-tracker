@@ -14,7 +14,7 @@ Expense Tracker — монорепозиторий с pnpm workspaces, сост�
 ```bash
 # Development
 pnpm dev              # Run both web and api in parallel
-pnpm dev:web          # Run only frontend (localhost:3000)
+pnpm dev:web          # Run only frontend (localhost:3002)
 pnpm dev:api          # Run only backend (localhost:3001)
 
 # Database
@@ -100,6 +100,10 @@ DATABASE_URL="postgresql://expense_user:expense_pass@localhost:5432/expense_trac
 API_PORT=3001
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
+
+**Порты:**
+- Frontend (Next.js): `http://localhost:3002`
+- Backend (NestJS): `http://localhost:3001`
 
 ## Commit Convention
 

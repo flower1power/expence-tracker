@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAuth } from '@/features/auth';
 import {
   TransactionsList,
   CreateTransactionDialog,
@@ -11,8 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
-export default function DashboardPage() {
-  const { user } = useAuth();
+export default function TransactionsPage() {
   const {
     transactions,
     categories,
@@ -29,6 +27,14 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto p-8 space-y-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Транзакции</h1>
+        <CreateTransactionDialog
+          categories={categories}
+          onSubmit={handleCreateTransaction}
+        />
+      </div>
+
       {error && (
         <Card className="border-destructive bg-destructive/10">
           <CardContent className="flex items-center justify-between pt-6">
@@ -42,49 +48,19 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Профиль</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <p className="text-sm text-muted-foreground">Имя</p>
-              <p className="font-medium">{user?.name}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{user?.email}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Действия</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CreateTransactionDialog
-              categories={categories}
-              onSubmit={handleCreateTransaction}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
       <Card>
         <CardHeader>
-          <CardTitle>Последние транзакции</CardTitle>
+          <CardTitle>Все транзакции</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: 10 }).map((_, i) => (
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
           ) : (
-            <TransactionsList transactions={transactions} pageSize={10} />
+            <TransactionsList transactions={transactions} pageSize={15} />
           )}
         </CardContent>
       </Card>
