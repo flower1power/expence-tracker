@@ -141,3 +141,50 @@ chore: upgrade dependencies
 - Без точки в конце
 - Breaking changes помечай восклицательным знаком
 - Атомарные коммиты (одна логическая единица)
+
+## Branching Strategy (GitHub Flow)
+
+Проект использует **GitHub Flow** — простая модель для непрерывной разработки:
+
+**Основные принципы:**
+- `main` — всегда стабильная, готова к деплою
+- Feature ветки создаются от `main`
+- После завершения работы создается Pull Request
+- После review мержим в `main` и удаляем feature ветку
+
+**Именование веток:**
+```
+feature/<название>    # новая функциональность
+fix/<название>        # исправление бага
+refactor/<название>   # рефакторинг
+docs/<название>       # документация
+```
+
+**Workflow:**
+```bash
+# 1. Создать ветку от main
+git checkout main
+git pull
+git checkout -b feature/dashboard-home
+
+# 2. Работать в ветке, делать коммиты
+git add .
+git commit -m "feat(web): добавлен компонент статистики"
+
+# 3. Пушить в remote
+git push -u origin feature/dashboard-home
+
+# 4. Создать Pull Request через GitHub
+gh pr create --title "Dashboard home screen" --body "..."
+
+# 5. После мержа удалить локальную ветку
+git checkout main
+git pull
+git branch -d feature/dashboard-home
+```
+
+**Правила:**
+- Всегда создавать ветку от актуального `main`
+- Один PR = одна фича/фикс (атомарность)
+- Перед мержем делать `git pull origin main` и разрешать конфликты
+- После мержа удалять feature ветку
