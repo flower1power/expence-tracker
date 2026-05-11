@@ -44,9 +44,48 @@ pnpm build            # Build all packages
 
 ### Frontend (apps/web)
 - Next.js App Router (`src/app/`)
-- `src/components/` — React компоненты
-- `src/lib/` — утилиты
+- FSD (Feature-Sliced Design) архитектура
+- shadcn/ui компоненты (Radix UI + Tailwind CSS)
 - Path alias: `@/*` → `./src/*`
+
+#### FSD Architecture
+
+Проект следует принципам **Feature-Sliced Design** для масштабируемости и maintainability:
+
+```
+src/
+├── app/                    # App layer - routing, pages
+│   ├── (auth)/            # Route group для auth страниц
+│   │   ├── login/
+│   │   ├── register/
+│   │   └── layout.tsx
+│   ├── (protected)/       # Route group для защищенных страниц
+│   │   ├── dashboard/
+│   │   └── layout.tsx     # AuthGuard wrapper
+│   └── layout.tsx         # Root layout с AuthProvider
+├── features/              # Features layer - business logic
+│   └── auth/
+│       ├── api/           # API calls
+│       ├── model/         # Types, schemas, state
+│       └── ui/            # Feature components
+├── entities/              # Entities layer - domain models
+│   └── user/
+│       └── model/
+├── shared/                # Shared layer - reusable code
+│   ├── api/               # API client
+│   ├── config/            # Environment config
+│   └── ui/                # shadcn/ui components
+├── components/            # Legacy components
+└── lib/                   # Utilities
+```
+
+**Слои (снизу вверх):**
+- `shared/` — переиспользуемые UI компоненты, утилиты, конфиг
+- `entities/` — бизнес-сущности (User, Category, Transaction)
+- `features/` — фичи (auth, создание транзакции, фильтры)
+- `app/` — страницы, роутинг, провайдеры
+
+**Правило импортов:** слой может импортировать только из слоёв ниже (или из того же слоя).
 
 ### Shared (packages/shared)
 - Импорт: `@expense-tracker/shared`
@@ -61,3 +100,44 @@ DATABASE_URL="postgresql://expense_user:expense_pass@localhost:5432/expense_trac
 API_PORT=3001
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
+
+## Commit Convention
+
+Проект использует [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+```
+
+**Types:**
+- `feat` — новая функциональность
+- `fix` — исправление бага
+- `docs` — изменения документации
+- `style` — форматирование (без изменения логики)
+- `refactor` — рефакторинг кода
+- `test` — добавление/изменение тестов
+- `chore` — обслуживание (deps, configs, CI)
+
+**Scopes:**
+- `api` — backend (apps/api)
+- `web` — frontend (apps/web)
+- `shared` — общий пакет (packages/shared)
+- без scope — изменения в корне или нескольких пакетах
+
+**Примеры:**
+```bash
+feat(api): add transaction module with CQRS
+feat(web): implement auth feature with JWT
+fix(api): handle null category in transactions
+docs: update README with setup instructions
+chore: upgrade dependencies
+```
+
+**Правила:**
+- Описание на русском, кратко
+- Первая буква строчная
+- Без точки в конце
+- Breaking changes помечай восклицательным знаком
+- Атомарные коммиты (одна логическая единица)
