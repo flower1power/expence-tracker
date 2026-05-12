@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
+/** Главная страница дашборда для аутентифицированного пользователя. */
 export default function DashboardPage() {
   const { user } = useAuth();
   const {

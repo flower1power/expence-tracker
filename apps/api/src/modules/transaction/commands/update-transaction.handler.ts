@@ -8,6 +8,10 @@ import {
 import { CategoryRepository } from '../../category/category.repository';
 import { GetTransactionByIdQuery } from '../queries/get-transaction-by-id.query';
 
+/**
+ * Обработчик команды обновления транзакции.
+ * Проверяет существование транзакции, права доступа и корректность новой категории.
+ */
 @CommandHandler(UpdateTransactionCommand)
 export class UpdateTransactionHandler
   implements ICommandHandler<UpdateTransactionCommand>
@@ -18,6 +22,14 @@ export class UpdateTransactionHandler
     private readonly queryBus: QueryBus,
   ) {}
 
+  /**
+   * Выполняет обновление транзакции.
+   *
+   * @param command - ID транзакции, ID пользователя и поля для изменения
+   * @returns Обновлённая транзакция с данными категории
+   * @throws NotFoundException если транзакция или указанная категория не найдена
+   * @throws ForbiddenException если транзакция или категория принадлежит другому пользователю
+   */
   async execute(
     command: UpdateTransactionCommand,
   ): Promise<TransactionWithCategory> {

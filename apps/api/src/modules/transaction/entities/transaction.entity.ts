@@ -1,6 +1,7 @@
 import { TransactionType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
+/** Сущность транзакции, отражающая модель Prisma. */
 export class Transaction {
   id!: string;
   amount!: Decimal;

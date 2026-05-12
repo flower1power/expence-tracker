@@ -63,10 +63,18 @@ JWT_SECRET=your_secret_here
 ## Swagger и JSDoc
 
 <important if="добавление или изменение эндпоинтов">
-Swagger пока не подключён (`@nestjs/swagger` не установлен). При добавлении Swagger:
-- Декорировать DTO через `@ApiProperty()`
+
+Swagger подключён (`@nestjs/swagger@^7`). UI доступен на `/api/docs`.
+
+При добавлении новых эндпоинтов:
+- Декорировать DTO через `@ApiProperty()` / `@ApiPropertyOptional()`
 - Декорировать контроллеры через `@ApiTags()`, `@ApiBearerAuth()`
-- Декорировать методы через `@ApiOperation()`, `@ApiResponse()`
+- Декорировать методы через `@ApiOperation()`, `@ApiResponse()`, `@ApiParam()`
 
 JSDoc писать только для неочевидной бизнес-логики в handlers. Контроллеры и DTO самодокументированы через декораторы.
+
 </important>
+
+## Документация
+После изменения методов — обновляй JSDoc.
+Для DTO и контроллеров — добавляй/обновляй Swagger декораторы.

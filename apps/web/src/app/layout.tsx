@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   description: 'Track your expenses easily',
 };
 
+/**
+ * Корневой layout приложения: подключает шрифт, провайдеры и глобальные стили.
+ *
+ * @param children - Контент текущей страницы
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

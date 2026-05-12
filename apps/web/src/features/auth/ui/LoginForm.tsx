@@ -9,15 +9,20 @@ import { Button } from '@/components/ui/button';
 import { login } from '../api/auth.api';
 import { useAuth } from '../model/auth.store';
 
+/** Форма входа в аккаунт с валидацией обязательных полей. */
 export function LoginForm() {
   const router = useRouter();
   const { setAuth } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Обрабатывает отправку формы: вызывает API входа и сохраняет сессию.
+   *
+   * @param e - Событие отправки формы
+   */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submitted!');
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
@@ -32,13 +37,10 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      console.log('Sending request to API...');
       const response = await login({ email, password });
-      console.log('Response:', response);
       setAuth(response.user, response.accessToken);
       router.push('/dashboard');
     } catch (err) {
-      console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);

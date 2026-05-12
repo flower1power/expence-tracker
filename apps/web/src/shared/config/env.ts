@@ -1,3 +1,4 @@
+/** Типизированные переменные окружения, доступные на клиенте. */
 export const env = {
   apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
 } as const;

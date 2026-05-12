@@ -15,13 +15,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionFilterDto } from './dto/transaction-filter.dto';
-import { TransactionSummaryQueryDto } from './dto/transaction-summary.dto';
+import { TransactionSummaryQueryDto, TransactionSummaryResponseDto } from './dto/transaction-summary.dto';
+import { TransactionResponseDto } from './dto/transaction-response.dto';
 import {
   CreateTransactionCommand,
   UpdateTransactionCommand,
@@ -37,6 +45,12 @@ import {
   CategorySummary,
 } from './transaction.repository';
 
+/**
+ * Преобразует Decimal amount в строку для JSON-сериализации.
+ *
+ * @param transaction - Транзакция с amount типа Prisma.Decimal
+ * @returns Объект транзакции с amount в виде строки
+ */
 function toResponseDto(transaction: TransactionWithCategory) {
   return {
     ...transaction,
@@ -44,6 +58,8 @@ function toResponseDto(transaction: TransactionWithCategory) {
   };
 }
 
+@ApiTags('Transactions')
+@ApiBearerAuth()
 @Controller('transactions')
 @UseGuards(JwtAuthGuard)
 export class TransactionController {
@@ -52,6 +68,20 @@ export class TransactionController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  /**
+   * Создаёт новую транзакцию для текущего пользователя.
+   *
+   * @param dto - Данные новой транзакции
+   * @param user - Текущий аутентифицированный пользователь
+   * @returns Созданная транзакция с данными категории
+   * @throws NotFoundException если категория не найдена
+   * @throws ForbiddenException если категория принадлежит другому пользователю
+   */
+  @ApiOperation({ summary: 'Создать транзакцию' })
+  @ApiResponse({ status: 201, description: 'Транзакция создана', type: TransactionResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Категория не принадлежит пользователю' })
+  @ApiResponse({ status: 404, description: 'Категория не найдена' })
   @Post()
   async create(
     @Body() dto: CreateTransactionDto,
@@ -70,6 +100,16 @@ export class TransactionController {
     return toResponseDto(result);
   }
 
+  /**
+   * Возвращает список транзакций текущего пользователя с возможностью фильтрации.
+   *
+   * @param filter - Параметры фильтрации (диапазон дат, тип, категория)
+   * @param user - Текущий аутентифицированный пользователь
+   * @returns Список транзакций, отсортированных по дате убывания
+   */
+  @ApiOperation({ summary: 'Получить список транзакций' })
+  @ApiResponse({ status: 200, description: 'Список транзакций пользователя', type: [TransactionResponseDto] })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @Get()
   async findAll(
     @Query() filter: TransactionFilterDto,
@@ -89,6 +129,16 @@ export class TransactionController {
     return results.map(toResponseDto);
   }
 
+  /**
+   * Возвращает финансовую сводку за указанный месяц: доходы, расходы, баланс и разбивку по категориям.
+   *
+   * @param query - Год и месяц для расчёта сводки
+   * @param user - Текущий аутентифицированный пользователь
+   * @returns Объект с totalIncome, totalExpense, balance и массивом byCategory
+   */
+  @ApiOperation({ summary: 'Получить финансовую сводку за месяц' })
+  @ApiResponse({ status: 200, description: 'Сводка доходов и расходов', type: TransactionSummaryResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @Get('summary')
   async getSummary(
     @Query() query: TransactionSummaryQueryDto,
@@ -115,6 +165,21 @@ export class TransactionController {
     };
   }
 
+  /**
+   * Возвращает транзакцию по UUID.
+   *
+   * @param id - UUID транзакции
+   * @param user - Текущий аутентифицированный пользователь
+   * @returns Транзакция с данными категории
+   * @throws NotFoundException если транзакция не найдена
+   * @throws ForbiddenException если транзакция принадлежит другому пользователю
+   */
+  @ApiOperation({ summary: 'Получить транзакцию по ID' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 200, description: 'Транзакция найдена', type: TransactionResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Доступ запрещён' })
+  @ApiResponse({ status: 404, description: 'Транзакция не найдена' })
   @Get(':id')
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
@@ -134,6 +199,22 @@ export class TransactionController {
     return toResponseDto(transaction);
   }
 
+  /**
+   * Обновляет поля транзакции по UUID.
+   *
+   * @param id - UUID транзакции
+   * @param dto - Поля для обновления (все необязательны)
+   * @param user - Текущий аутентифицированный пользователь
+   * @returns Обновлённая транзакция с данными категории
+   * @throws NotFoundException если транзакция или указанная категория не найдена
+   * @throws ForbiddenException если транзакция или категория принадлежит другому пользователю
+   */
+  @ApiOperation({ summary: 'Обновить транзакцию' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 200, description: 'Транзакция обновлена', type: TransactionResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Доступ запрещён' })
+  @ApiResponse({ status: 404, description: 'Транзакция или категория не найдена' })
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -155,6 +236,20 @@ export class TransactionController {
     return toResponseDto(result);
   }
 
+  /**
+   * Удаляет транзакцию по UUID.
+   *
+   * @param id - UUID транзакции
+   * @param user - Текущий аутентифицированный пользователь
+   * @throws NotFoundException если транзакция не найдена
+   * @throws ForbiddenException если транзакция принадлежит другому пользователю
+   */
+  @ApiOperation({ summary: 'Удалить транзакцию' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 204, description: 'Транзакция удалена' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Доступ запрещён' })
+  @ApiResponse({ status: 404, description: 'Транзакция не найдена' })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(

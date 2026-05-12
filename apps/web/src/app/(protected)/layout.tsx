@@ -1,6 +1,12 @@
 import { AuthGuard } from '@/features/auth';
 import { DashboardHeader } from '@/widgets/dashboard';
 
+/**
+ * Layout для защищённых маршрутов. Оборачивает контент в AuthGuard,
+ * который перенаправляет неаутентифицированных пользователей на /login.
+ *
+ * @param children - Контент защищённой страницы
+ */
 export default function ProtectedLayout({
   children,
 }: {

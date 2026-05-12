@@ -16,6 +16,7 @@ import { useAuth } from '../model/auth.store';
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
+/** Форма регистрации нового пользователя с Zod-валидацией через react-hook-form. */
 export function RegisterForm() {
   const router = useRouter();
   const { setAuth } = useAuth();
@@ -36,6 +37,11 @@ export function RegisterForm() {
     },
   });
 
+  /**
+   * Обрабатывает валидную форму: вызывает API регистрации и сохраняет сессию.
+   *
+   * @param data - Валидированные данные формы
+   */
   const onSubmit = async (data: RegisterFormData) => {
     setError(null);
     setIsLoading(true);

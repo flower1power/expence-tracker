@@ -16,6 +16,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_KEY = 'accessToken';
 const USER_KEY = 'user';
 
+/**
+ * Провайдер контекста аутентификации.
+ * При монтировании восстанавливает сессию из localStorage.
+ *
+ * @param children - Дочерние компоненты, которым доступен контекст
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -32,6 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
+  /**
+   * Сохраняет данные аутентифицированного пользователя в state и localStorage.
+   *
+   * @param newUser - Данные пользователя
+   * @param newToken - JWT access-токен
+   */
   const setAuth = (newUser: User, newToken: string) => {
     setUser(newUser);
     setToken(newToken);
@@ -39,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(USER_KEY, JSON.stringify(newUser));
   };
 
+  /** Очищает сессию пользователя из state и localStorage. */
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -53,6 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Хук для доступа к контексту аутентификации.
+ *
+ * @returns Контекст аутентификации: user, token, setAuth, logout, isLoading
+ * @throws Error если используется вне AuthProvider
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

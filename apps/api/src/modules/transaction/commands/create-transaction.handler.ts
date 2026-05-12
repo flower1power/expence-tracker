@@ -7,6 +7,10 @@ import {
 } from '../transaction.repository';
 import { CategoryRepository } from '../../category/category.repository';
 
+/**
+ * Обработчик команды создания транзакции.
+ * Проверяет существование категории и её принадлежность пользователю.
+ */
 @CommandHandler(CreateTransactionCommand)
 export class CreateTransactionHandler
   implements ICommandHandler<CreateTransactionCommand>
@@ -16,6 +20,14 @@ export class CreateTransactionHandler
     private readonly categoryRepository: CategoryRepository,
   ) {}
 
+  /**
+   * Выполняет создание транзакции.
+   *
+   * @param command - Данные новой транзакции
+   * @returns Созданная транзакция с данными категории
+   * @throws NotFoundException если категория не найдена
+   * @throws ForbiddenException если категория принадлежит другому пользователю
+   */
   async execute(
     command: CreateTransactionCommand,
   ): Promise<TransactionWithCategory> {

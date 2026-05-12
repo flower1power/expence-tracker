@@ -1,5 +1,6 @@
 import { TransactionType } from '@prisma/client';
 
+/** Поля транзакции, доступные для изменения. */
 export interface UpdateTransactionData {
   amount?: number;
   type?: TransactionType;
@@ -8,7 +9,13 @@ export interface UpdateTransactionData {
   categoryId?: string;
 }
 
+/** Команда для обновления существующей транзакции. */
 export class UpdateTransactionCommand {
+  /**
+   * @param id - UUID транзакции для обновления
+   * @param userId - UUID пользователя (для проверки владения)
+   * @param data - Поля для обновления
+   */
   constructor(
     public readonly id: string,
     public readonly userId: string,

@@ -4,6 +4,10 @@ import { DeleteTransactionCommand } from './delete-transaction.command';
 import { TransactionRepository } from '../transaction.repository';
 import { GetTransactionByIdQuery } from '../queries/get-transaction-by-id.query';
 
+/**
+ * Обработчик команды удаления транзакции.
+ * Проверяет существование транзакции и право доступа.
+ */
 @CommandHandler(DeleteTransactionCommand)
 export class DeleteTransactionHandler
   implements ICommandHandler<DeleteTransactionCommand>
@@ -13,6 +17,13 @@ export class DeleteTransactionHandler
     private readonly queryBus: QueryBus,
   ) {}
 
+  /**
+   * Выполняет удаление транзакции.
+   *
+   * @param command - ID транзакции и ID пользователя
+   * @throws NotFoundException если транзакция не найдена
+   * @throws ForbiddenException если транзакция принадлежит другому пользователю
+   */
   async execute(command: DeleteTransactionCommand): Promise<void> {
     const { id, userId } = command;
 

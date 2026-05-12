@@ -7,6 +7,10 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { GetUserByIdQuery } from '../../user/queries';
 import { User } from '../../user/entities/user.entity';
 
+/**
+ * Passport-стратегия для валидации JWT-токена из заголовка Authorization.
+ * Результат помещается в request.user и доступен через @CurrentUser().
+ */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -20,6 +24,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  /**
+   * Валидирует payload JWT-токена и возвращает пользователя.
+   *
+   * @param payload - Декодированный payload с sub (userId) и email
+   * @returns Пользователь, соответствующий payload.sub
+   * @throws UnauthorizedException если пользователь не найден в БД
+   */
   async validate(payload: JwtPayload): Promise<User> {
     const user = await this.queryBus.execute(new GetUserByIdQuery(payload.sub));
     if (!user) {

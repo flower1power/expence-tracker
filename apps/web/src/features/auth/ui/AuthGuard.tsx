@@ -8,6 +8,13 @@ interface AuthGuardProps {
   children: React.ReactNode;
 }
 
+/**
+ * Компонент-защита для приватных маршрутов.
+ * Перенаправляет на /login, если пользователь не аутентифицирован.
+ * Отображает заглушку во время проверки сессии (isLoading).
+ *
+ * @param children - Контент, доступный только авторизованным пользователям
+ */
 export function AuthGuard({ children }: AuthGuardProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();

@@ -56,3 +56,6 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 | `/dashboard` | `app/(protected)/dashboard/page.tsx` | Только авторизованные |
 
 Защита через `AuthGuard` в `app/(protected)/layout.tsx` — проверяет токен в `auth.store.tsx` и редиректит на `/login`.
+
+## Документация
+После изменения методов — обновляй JSDoc.

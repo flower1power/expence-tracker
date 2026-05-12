@@ -9,6 +9,10 @@ import { CategoryRepository } from '../category.repository';
 import { Category } from '../entities/category.entity';
 import { GetCategoryByIdQuery } from '../queries/get-category-by-id.query';
 
+/**
+ * Обработчик команды обновления категории.
+ * Проверяет существование категории и право доступа пользователя.
+ */
 @CommandHandler(UpdateCategoryCommand)
 export class UpdateCategoryHandler
   implements ICommandHandler<UpdateCategoryCommand>
@@ -18,6 +22,14 @@ export class UpdateCategoryHandler
     private readonly queryBus: QueryBus,
   ) {}
 
+  /**
+   * Выполняет обновление категории.
+   *
+   * @param command - ID категории, ID пользователя и поля для изменения
+   * @returns Обновлённая категория
+   * @throws NotFoundException если категория не найдена
+   * @throws ForbiddenException если категория принадлежит другому пользователю
+   */
   async execute(command: UpdateCategoryCommand): Promise<Category> {
     const { id, userId, data } = command;
 
