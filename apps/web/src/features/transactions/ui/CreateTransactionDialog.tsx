@@ -25,19 +25,28 @@ export function CreateTransactionDialog({
 }: CreateTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setFormKey((k) => k + 1);
+    }
+    setOpen(newOpen);
+  };
 
   const handleSubmit = async (data: CreateTransactionFormData) => {
     setIsLoading(true);
     try {
       await onSubmit(data);
       setOpen(false);
+      setFormKey((k) => k + 1);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={<Button />}>+ Создать транзакцию</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -47,6 +56,7 @@ export function CreateTransactionDialog({
           </DialogDescription>
         </DialogHeader>
         <CreateTransactionForm
+          key={formKey}
           categories={categories}
           onSubmit={handleSubmit}
           isLoading={isLoading}

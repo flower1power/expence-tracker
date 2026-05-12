@@ -19,7 +19,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }).format(new Date(transaction.date));
+  }).format(new Date(transaction.date + 'T00:00:00'));
 
   return (
     <div className="flex items-center justify-between rounded-lg border p-4 hover:bg-muted/50 transition-colors">

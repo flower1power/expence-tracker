@@ -8,7 +8,7 @@ export const createTransactionSchema = z.object({
     .number({ message: 'Введите сумму' })
     .positive('Сумма должна быть положительной'),
   description: z.string().optional(),
-  date: z.string({ message: 'Выберите дату' }),
+  date: z.string().min(1, 'Выберите дату'),
   categoryId: z.string().optional(),
 });
 

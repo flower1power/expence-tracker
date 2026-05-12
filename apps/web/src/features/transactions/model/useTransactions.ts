@@ -39,7 +39,7 @@ export function useTransactions() {
 
   const handleCreateTransaction = useCallback(
     async (data: CreateTransactionFormData) => {
-      if (!token) return;
+      if (!token) throw new Error('Требуется авторизация');
 
       try {
         await createTransaction(
