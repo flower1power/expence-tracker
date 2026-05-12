@@ -1,258 +1,83 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-Expense Tracker — монорепозиторий с pnpm workspaces, состоящий из:
-- **apps/web** — Next.js 16 frontend (React 19, Tailwind CSS)
+Expense Tracker — веб-приложение для учёта личных расходов. Монорепозиторий с pnpm workspaces:
+- **apps/web** — Next.js frontend (React 19, Tailwind CSS)
 - **apps/api** — NestJS backend (Prisma ORM, PostgreSQL)
-- **packages/shared** — общие типы между frontend и backend
+- **packages/shared** — общие TypeScript типы между web и api
+
+## Tech Stack
+
+**Frontend (apps/web):** Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui (Radix UI), FSD архитектура
+
+**Backend (apps/api):** NestJS, TypeScript, Prisma ORM, PostgreSQL, JWT аутентификация, CQRS паттерн
+
+**Shared (packages/shared):** импорт через `@expense-tracker/shared`
 
 ## Commands
 
 ```bash
 # Development
-pnpm dev              # Run both web and api in parallel
-pnpm dev:web          # Run only frontend (localhost:3002)
-pnpm dev:api          # Run only backend (localhost:3001)
+pnpm dev              # web + api параллельно
+pnpm dev:web          # только frontend (localhost:3002)
+pnpm dev:api          # только backend (localhost:3001)
 
 # Database
-pnpm db:up            # Start PostgreSQL via Docker
-pnpm db:down          # Stop PostgreSQL
-pnpm prisma:generate  # Generate Prisma Client
-pnpm prisma:migrate   # Run migrations
+pnpm db:up            # запустить PostgreSQL (Docker)
+pnpm db:down          # остановить PostgreSQL
+pnpm prisma:generate  # сгенерировать Prisma Client
+pnpm prisma:migrate   # применить миграции
 
 # Code Quality
-pnpm lint             # ESLint check
-pnpm lint:fix         # ESLint autofix
-pnpm format           # Prettier format
-pnpm format:check     # Prettier check
+pnpm lint && pnpm format:check   # проверка перед коммитом
 
 # Build
-pnpm build            # Build all packages
+pnpm build            # собрать все пакеты
 ```
 
-## Architecture
-
-### Backend (apps/api)
-- NestJS модульная архитектура
-- `src/modules/` — feature modules
-- `src/prisma/` — PrismaService (global module)
-- `prisma/schema.prisma` — схема БД
-- Health check endpoint: `GET /`
-
-### Frontend (apps/web)
-- Next.js App Router (`src/app/`)
-- FSD (Feature-Sliced Design) архитектура
-- shadcn/ui компоненты (Radix UI + Tailwind CSS)
-- Path alias: `@/*` → `./src/*`
-
-#### FSD Architecture
-
-Проект следует принципам **Feature-Sliced Design** для масштабируемости и maintainability:
-
-```
-src/
-├── app/                    # App layer - routing, pages
-│   ├── (auth)/            # Route group для auth страниц
-│   │   ├── login/
-│   │   ├── register/
-│   │   └── layout.tsx
-│   ├── (protected)/       # Route group для защищенных страниц
-│   │   ├── dashboard/
-│   │   └── layout.tsx     # AuthGuard wrapper
-│   └── layout.tsx         # Root layout с AuthProvider
-├── features/              # Features layer - business logic
-│   └── auth/
-│       ├── api/           # API calls
-│       ├── model/         # Types, schemas, state
-│       └── ui/            # Feature components
-├── entities/              # Entities layer - domain models
-│   └── user/
-│       └── model/
-├── shared/                # Shared layer - reusable code
-│   ├── api/               # API client
-│   ├── config/            # Environment config
-│   └── ui/                # shadcn/ui components
-├── components/            # Legacy components
-└── lib/                   # Utilities
-```
-
-**Слои (снизу вверх):**
-- `shared/` — переиспользуемые UI компоненты, утилиты, конфиг
-- `entities/` — бизнес-сущности (User, Category, Transaction)
-- `features/` — фичи (auth, создание транзакции, фильтры)
-- `app/` — страницы, роутинг, провайдеры
-
-**Правило импортов:** слой может импортировать только из слоёв ниже (или из того же слоя).
-
-### Shared (packages/shared)
-- Импорт: `@expense-tracker/shared`
-- Общие TypeScript типы между web и api
-
-## Environment
-
-Скопировать `.env.example` в `.env` в корне и в `apps/api/`.
-
-```
-DATABASE_URL="postgresql://expense_user:expense_pass@localhost:5432/expense_tracker"
-API_PORT=3001
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
-
-**Порты:**
-- Frontend (Next.js): `http://localhost:3002`
-- Backend (NestJS): `http://localhost:3001`
-
-## Commit Convention
-
-Проект использует [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-```
-
-**Types:**
-- `feat` — новая функциональность
-- `fix` — исправление бага
-- `docs` — изменения документации
-- `style` — форматирование (без изменения логики)
-- `refactor` — рефакторинг кода
-- `test` — добавление/изменение тестов
-- `chore` — обслуживание (deps, configs, CI)
-
-**Scopes:**
-- `api` — backend (apps/api)
-- `web` — frontend (apps/web)
-- `shared` — общий пакет (packages/shared)
-- без scope — изменения в корне или нескольких пакетах
-
-**Примеры:**
+<important if="первичная настройка окружения">
+Скопировать `.env.example` → `.env` в корне и в `apps/api/`. Затем запустить:
 ```bash
-feat(api): add transaction module with CQRS
-feat(web): implement auth feature with JWT
-fix(api): handle null category in transactions
-docs: update README with setup instructions
-chore: upgrade dependencies
+pnpm db:up && pnpm prisma:migrate && pnpm prisma:generate
 ```
-
-**Правила:**
-- Описание на русском, кратко
-- Первая буква строчная
-- Без точки в конце
-- Breaking changes помечай восклицательным знаком
-- Атомарные коммиты (одна логическая единица)
+</important>
 
 ## Branching Strategy (GitHub Flow)
 
-Проект использует **GitHub Flow** — простая модель для непрерывной разработки:
-
-**Основные принципы:**
 - `main` — всегда стабильная, готова к деплою
-- Feature ветки создаются от `main`
-- После завершения работы создается Pull Request
-- После review мержим в `main` и удаляем feature ветку
+- Ветки: `feature/<name>`, `fix/<name>`, `refactor/<name>`, `docs/<name>`
+- Один PR = одна фича/фикс; после мержа удалять ветку
 
-**Именование веток:**
-```
-feature/<название>    # новая функциональность
-fix/<название>        # исправление бага
-refactor/<название>   # рефакторинг
-docs/<название>       # документация
-```
+<important if="создание Pull Request">
 
-**Workflow:**
 ```bash
-# 1. Создать ветку от main
-git checkout main
-git pull
-git checkout -b feature/dashboard-home
+git diff main...HEAD   # изучи изменения перед созданием PR
 
-# 2. Работать в ветке, делать коммиты
-git add .
-git commit -m "feat(web): добавлен компонент статистики"
-
-# 3. Пушить в remote
-git push -u origin feature/dashboard-home
-
-# 4. Создать Pull Request (см. секцию ниже)
-
-# 5. После мержа удалить локальную ветку
-git checkout main
-git pull
-git branch -d feature/dashboard-home
-```
-
-**Правила:**
-- Всегда создавать ветку от актуального `main`
-- Один PR = одна фича/фикс (атомарность)
-- Перед мержем делать `git pull origin main` и разрешать конфликты
-- После мержа удалять feature ветку
-
-## Creating Pull Requests
-
-Перед созданием PR изучи изменения с помощью `git diff main...HEAD`, чтобы написать информативное описание.
-
-**Title:**
-- Используй Conventional Commits формат: `<type>(<scope>): <description>`
-- Пример: `feat(web): реализован дашборд с транзакциями и категориями`
-
-**Body структура:**
-```markdown
+gh pr create --title "feat(web): описание" --body "$(cat <<'EOF'
 ## Summary
-Краткое описание реализованного функционала (2-3 предложения)
-
-### Новые страницы (если есть)
-- **`/path`** — описание страницы
-
-### Используемые endpoints (если есть)
-- `GET /endpoint` — описание
-- `POST /endpoint` — описание
+Краткое описание (2-3 предложения)
 
 ### Реализованный функционал
-**Категория 1:**
-- Пункт 1
-- Пункт 2
-
-**Категория 2:**
 - Пункт 1
 
 ### Технические детали
 - Архитектурные решения
-- Использованные библиотеки/паттерны
-- Особенности реализации
-
-### Обновления документации (если есть)
-- Что изменилось в документации
-
-## Test plan
-- [ ] Тестовый сценарий 1
-- [ ] Тестовый сценарий 2
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-```
-
-**Команда для создания PR:**
-```bash
-# Предварительно изучи изменения
-git diff main...HEAD
-
-# Создай PR с информативным описанием
-gh pr create --title "feat(web): описание изменений" --body "$(cat <<'EOF'
-## Summary
-Краткое описание...
 
 ## Test plan
 - [ ] Тест 1
-- [ ] Тест 2
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
 ```
+</important>
 
-**Примеры хороших PR:**
-- [#1 - feat(web): реализован дашборд с транзакциями и категориями](https://github.com/flower1power/expence-tracker/pull/1)
+<when_committing>
+Формат: `<type>(<scope>): <description>` (Conventional Commits)
+
+**Types:** `feat` | `fix` | `docs` | `style` | `refactor` | `test` | `chore`
+**Scopes:** `api` | `web` | `shared` | (без scope — корень/несколько пакетов)
+
+- Описание на русском, первая буква строчная, без точки
+- Breaking changes: `!` перед двоеточием
+- Атомарные коммиты — одна логическая единица
+</when_committing>

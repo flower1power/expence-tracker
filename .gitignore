@@ -18,7 +18,6 @@ out
 *.swp
 *.swo
 .DS_Store
-.claude
 
 # Logs
 logs
