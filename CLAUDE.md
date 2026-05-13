@@ -71,17 +71,6 @@ EOF
 ```
 </important>
 
-<when_committing>
-Формат: `<type>(<scope>): <description>` (Conventional Commits)
-
-**Types:** `feat` | `fix` | `docs` | `style` | `refactor` | `test` | `chore`
-**Scopes:** `api` | `web` | `shared` | (без scope — корень/несколько пакетов)
-
-- Описание на русском, первая буква строчная, без точки
-- Breaking changes: `!` перед двоеточием
-- Атомарные коммиты — одна логическая единица
-</when_committing>
-
 
 ## Документация
 При добавлении функционала проверяй .claude/docs/* и актуализируй

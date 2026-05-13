@@ -1,7 +1,8 @@
 ---
 name: commit
 description: Создать коммит по соглашению проекта с описанием на русском
-allowedTools:
+user_invocable: true
+allowed-tools:
   - Bash(git *)
   - Read
   - Glob
